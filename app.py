@@ -73,22 +73,21 @@ def bar():
     if cityName and cityState and page:
         page = int(page)
 
+        csv_folder = 'data'
         distance_matrix = {}
 
-        csv_folder = './data'
+        for i in range(20):
+            filename = f'distance_matrix_{i}.csv'
+            csv_file = os.path.join(csv_folder, filename)
 
-        for filename in os.listdir(csv_folder):
-            if filename.startswith('distance_matrix_') and filename.endswith('.csv'):
-                csv_file = os.path.join(csv_folder, filename)
+            with open(csv_file, mode='r', encoding='utf-8') as file:
+                reader = csv.reader(file)
+                next(reader)
 
-        with open(csv_file, mode='r', encoding='utf-8') as file:
-            reader = csv.reader(file)
-            next(reader)
-
-            for row in reader:
-                key = row[0]
-                value = float(row[1])
-                distance_matrix[key] = value
+                for row in reader:
+                    key = row[0]
+                    value = float(row[1])
+                    distance_matrix[key] = value
 
         distances = []
         cities = []
@@ -119,79 +118,7 @@ def bar():
         #cache.set(cacheTen_key, json.dumps(result), ex=60 * 60)
         return jsonify({'cities': slicedCities, 'distances': slicedDistances})
     return jsonify({'error': 'Invalid request'})  # 对于不满足条件的请求，返回无效请求的响应
-# @app.route('/line', methods=['GET'])
-# def line():
-#     cityName = request.args.get('cityName')
-#     cityState = request.args.get('cityState')
-#     page = request.args.get('page')
-#     print(cityName)
-#     if cityName and cityState and page:
-#         page = int(page)
-#         print(page)
-#         reviews = get_reviews()
-#
-#         import csv
-#
-#         distance_matrix = {}
-#         csv_folder='./data'
-#         for filename in os.listdir(csv_folder):
-#             if filename.startswith('distance_matrix_') and filename.endswith('.csv'):
-#                 csv_file = os.path.join(csv_folder, filename)
-#
-#         with open(csv_file, mode='r', encoding='utf-8') as file:
-#             reader = csv.reader(file)
-#             next(reader)
-#
-#             for row in reader:
-#                 key = row[0]
-#                 value = float(row[1])
-#                 distance_matrix[key] = value
-#
-#         distances = []
-#         avg_scores = []
-#         cities_list = []
-#         print(reviews)
-#         # print(distance_matrix)
-#         for key, value in distance_matrix.items():
-#             # print(key)
-#             # print(value)
-#             city1, state1, city2, state2 = [part.strip() for part in key.split('_')]
-#             if (cityName == city1 and cityState == state1) or (cityName == city2 and cityState == state2):
-#                 if cityName == city1:
-#                     cities_list.append(f"{city2}-{state2}")
-#                     scores = [float(review['score']) for review in reviews if
-#                               review['city'] == city2]
-#                 else:
-#                     cities_list.append(f"{city1}-{state1}")
-#                     scores = [float(review['score']) for review in reviews if
-#                               review['city'] == city1]
-#
-#                 avg_score = sum(scores) / len(scores) if len(scores) > 0 else 0
-#                 avg_scores.append(avg_score)
-#                 distances.append(value)
-#         print(distances)
-#                 # 按照距离排序
-#         sorted_indices = sorted(range(len(distances)), key=lambda k: distances[k])
-#         sorted_cities = [cities_list[i] for i in sorted_indices]
-#         sorted_avg_scores = [avg_scores[i] for i in sorted_indices]
-#
-#         # 每页10个城市
-#         per_page = 10
-#         start_index = page * per_page
-#         end_index = (page + 1) * per_page
-#
-#         # 提取当前页的城市名和平均评价得分
-#         page_cities = sorted_cities[start_index:end_index]
-#         page_avg_scores = sorted_avg_scores[start_index:end_index]
-#
-#         # 将城市名和平均评价得分传递给前端
-#         result = {
-#             'cities': page_cities,
-#             'avg_scores': page_avg_scores
-#         }
-#
-#         return jsonify(result)
-#     return jsonify({'error': 'Invalid request'})  # 对于不满足条件的请求，返回无效请求的响应
+
 
 @app.route('/line', methods=['GET'])
 def line():
@@ -209,26 +136,21 @@ def line():
         page = int(page)
         reviews = get_reviews()
 
-        import csv
-
+        csv_folder = 'data'
         distance_matrix = {}
 
-        # 遍历所有分割后的 CSV 文件
-        csv_folder = './data'  # 指定存放分割后 CSV 文件的文件夹路径
+        for i in range(20):
+            filename = f'distance_matrix_{i}.csv'
+            csv_file = os.path.join(csv_folder, filename)
 
-        for filename in os.listdir(csv_folder):
-            if filename.startswith('distance_matrix_') and filename.endswith('.csv'):
-                csv_file = os.path.join(csv_folder, filename)
+            with open(csv_file, mode='r', encoding='utf-8') as file:
+                reader = csv.reader(file)
+                next(reader)
 
-                with open(csv_file, mode='r', encoding='utf-8') as file:
-                    reader = csv.reader(file)
-                    next(reader)  # 跳过表头
-
-                    for row in reader:
-                        key = row[0]
-                        value = float(row[1])
-                        distance_matrix[key] = value
-
+                for row in reader:
+                    key = row[0]
+                    value = float(row[1])
+                    distance_matrix[key] = value
         # 获取与指定城市相关的其他城市的距离和城市列表
         print(1)
         distances = []
@@ -416,11 +338,6 @@ def final():
 
         knnResult = response
         print(knnResult)
-        # # 将结果存入缓存
-        # # 将字典对象转换为 JSON 格式的字符串
-        # encoded_results = json.dumps(response)
-        # # 存入 Redis
-        # cache.set(redis_key, encoded_results)
 
         # 返回结果给前端
         cache.set(caheKnn_key, json.dumps(knnResult), ex=60 * 60* 24* 5)
@@ -479,44 +396,25 @@ def get_radar():
     return jsonify(result)
 
 def get_reviews():
-    # 尝试从缓存中获取结果
-    # redis_key = 'reviews'
-    # cached_result = cache.get(redis_key)
-    # if cached_result is not None:
-    #     reviews = json.loads(cached_result)
-    #print(reviews)
-    # container_review = database.get_container_client("reviews")
-    # query_review = "SELECT Top 1000 c.score,c.city,c.review FROM c"
-    # reviews = container_review.query_items(query_review, enable_cross_partition_query=True)
+
     import csv
 
-    # 打开 CSV 文件并创建 reader 对象
-    # with open('reviews.csv', 'r',encoding='utf-8') as csvfile:
-    #     reader = csv.reader(csvfile)
-    #     next(reader)
-    #     reviews = []
-    #     for row in reader:
-    #         obj = {}
-    #         obj['score'] = row[0]
-    #         obj['city'] = row[1]
-    #         obj['review'] = row[2]
-    #         reviews.append(obj)
     reviews = []
     csv_folder = './data'
     for filename in os.listdir(csv_folder):
         if filename.startswith('reviews_') and filename.endswith('.csv'):
             csv_file = os.path.join(csv_folder, filename)
 
-    with open(csv_file, mode='r', encoding='utf-8') as file:
-        reader = csv.reader(file)
-        next(reader)
+            with open(csv_file, mode='r', encoding='utf-8') as file:
+                reader = csv.reader(file)
+                next(reader)
 
-        for row in reader:
-            obj = {}
-            obj['score'] = row[0]
-            obj['city'] = row[1]
-            obj['review'] = row[2]
-            reviews.append(obj)
+                for row in reader:
+                    obj = {}
+                    obj['score'] = row[0]
+                    obj['city'] = row[1]
+                    obj['review'] = row[2]
+                    reviews.append(obj)
 
     return reviews
 
